@@ -61,7 +61,7 @@ namespace newBlackJack
         }
         static int ktoPerviy()
         {
-            Console.WriteLine("put 0 if first go player1, put 1 if first go computer ");
+            Console.WriteLine("pres 0 if first go player1, pres 1 if first go computer ");
             int perviy = int.Parse(Console.ReadLine());
             return perviy;
         }
@@ -316,7 +316,7 @@ namespace newBlackJack
                 Console.ReadLine();
            
                 Console.Clear();
-                Console.WriteLine("do you won to continue? put 'y' if yes, 'n' - no ");
+                Console.WriteLine("do you won to continue? pres 'y' if yes, 'n' - no ");
                 char choice = char.Parse(Console.ReadLine());
                 if (choice == 'n') break;
             } while (true);
