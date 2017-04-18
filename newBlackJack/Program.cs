@@ -8,7 +8,7 @@ namespace NewBlackJack
 {
     class Program
     {
-        static int GetMoreCardsC(List<Card> Player, ref int Index, Card[] Cards)
+        static int GetMoreCardsC(List<Card> Player, ref int Index, Card[] Cards, string WhoseCards)
         {
             int sumC;
             Console.WriteLine("computer make choice.");
@@ -22,12 +22,12 @@ namespace NewBlackJack
                 if (sumC >= 16) break;
                 Player.Add(Cards[Index]);
                 Index++;
-                PrintCardsC(Player);
+                PrintCards(Player, WhoseCards);
             } while (true);
             return sumC;
         }
 
-        static int GetMoreCardsP(List<Card> Player, ref int Index, Card[] Cards)
+        static int GetMoreCardsP(List<Card> Player, ref int Index, Card[] Cards, string WhoseCards)
         {
             int sumP;
             Console.WriteLine("player1 make choice.");
@@ -43,21 +43,15 @@ namespace NewBlackJack
                 if (choice == 'n') break;
                 Player.Add(Cards[Index]);
                 Index++;
-                PrintCardsP(Player);
+                PrintCards(Player, WhoseCards);
             } while (true);
             return sumP;
         }
 
-        static void PrintCardsC(List<Card> Player)
+        static void PrintCards(List<Card> Player, string WhoseCards)
         {
-            Console.WriteLine("cards computer:");
+            Console.WriteLine(WhoseCards);
             Print(Player);
-        }
-
-        static void PrintCardsP(List<Card> player)
-        {
-            Console.WriteLine("cards player1:");
-            Print(player);
         }
 
         static int WhoFirst()
@@ -106,19 +100,11 @@ namespace NewBlackJack
             }
         }
 
-        static void Print(List<Card> Player)
+        static void Print(IEnumerable<Card> Cards)
         {
-            foreach (Card item in Player)
+            foreach (var item in Cards)
             {
                 Console.WriteLine("{0,6} {1,7}", item.Face, item.Suite);
-            }
-        }
-
-        static void Print(Card[] Cards)
-        {
-            for (int i = 0; i < Cards.Length; i++)
-            {
-                Console.WriteLine("{0,6} {1,7}", Cards[i].Face, Cards[i].Suite);
             }
         }
 
@@ -158,45 +144,39 @@ namespace NewBlackJack
             return equalAce;
         }
 
-        static int CountWinP(int[] CountWin)
+        static int CountWinn(int[] CountWin, int IndexPlayer, string WhoWin)
         {
-            Console.WriteLine("player1 win");
-            CountWin[0]++;
-            return CountWin[0];
+            Console.WriteLine(WhoWin);
+            CountWin[IndexPlayer]++;
+            return CountWin[IndexPlayer];
         }
 
-        static int CountWinC(int[] CountWin)
+        static int[] Scoring(int[] CountWin, int SumP, int SumC, int[] IndexPlayer, string[] WhoWin)
         {
-            Console.WriteLine("computer win");
-            CountWin[1]++;
-            return CountWin[1];
-        }
 
-        static int[] Scoring(int[] CountWin, int SumP, int SumC)
-        {
             if (SumP > 21 && SumC <= 21)
             {
-                CountWinC(CountWin);
+                CountWinn(CountWin, IndexPlayer[1], WhoWin[1]);
             }
             if (SumP <= 21 && SumC > 21)
             {
-                CountWinP(CountWin);
+                CountWinn(CountWin, IndexPlayer[0], WhoWin[0]);
             }
             if (SumC > 21 && SumP > 21 && SumP > SumC)
             {
-                CountWinC(CountWin);
+                CountWinn(CountWin, IndexPlayer[1], WhoWin[1]);
             }
             if (SumC > 21 && SumP > 21 && SumP < SumC)
             {
-                CountWinP(CountWin);
+                CountWinn(CountWin, IndexPlayer[0], WhoWin[0]);
             }
             if (SumC < 21 && SumP < 21 && SumC > SumP)
             {
-                CountWinC(CountWin);
+                CountWinn(CountWin, IndexPlayer[1], WhoWin[1]);
             }
             if (SumC < 21 && SumP < 21 && SumC < SumP)
             {
-                CountWinP(CountWin);
+                CountWinn(CountWin, IndexPlayer[0], WhoWin[0]);
             }
             if (SumP == SumC)
             {
@@ -234,6 +214,14 @@ namespace NewBlackJack
 
         static void Main(string[] args)
         {
+            const int IndexPlayer1 = 0;
+            const int IndexComputer = 1;
+            int[] IndexPlayer = { IndexPlayer1, IndexComputer };
+            const string ComputerWin = "Computer win";
+            const string Player1Win = "Player1 win";
+            string[] WhoWin = { Player1Win, ComputerWin };
+            const string CardsComputer = "Computer cards:";
+            const string CardsPlayer1 = "Player1 cards:";
             int[] countWin = new int[2];
             Card[] Cards = new Card[36];
             FillCards(Cards);
@@ -262,21 +250,21 @@ namespace NewBlackJack
                         }
                         else if (EqualAce(player1) && NotEqualAce(computer))
                         {
-                            PrintCardsP(player1);
-                            CountWinP(countWin);
+                            PrintCards(player1, CardsPlayer1);
+                            CountWinn(countWin, IndexPlayer1, Player1Win);
                             continue;
                         }
                         else if (NotEqualAce(player1) && EqualAce(computer))
                         {
-                            PrintCardsC(computer);
-                            CountWinC(countWin);
+                            PrintCards(computer, CardsComputer);
+                            CountWinn(countWin, IndexComputer, ComputerWin);
                             continue;
                         }
-                        PrintCardsP(player1);
-                        sumP = GetMoreCardsP(player1, ref index, Cards);
-                        PrintCardsC(computer);
-                        sumC = GetMoreCardsC(computer, ref index, Cards);
-                        Scoring(countWin, sumP, sumC);
+                        PrintCards(player1, CardsPlayer1);
+                        sumP = GetMoreCardsP(player1, ref index, Cards, CardsPlayer1);
+                        PrintCards(computer, CardsComputer);
+                        sumC = GetMoreCardsC(computer, ref index, Cards, CardsComputer);
+                        Scoring(countWin, sumP, sumC, IndexPlayer, WhoWin);
                         break;
                     case 1:
                         computer = PlayerGetFirstCards(computer, Cards);
@@ -288,21 +276,21 @@ namespace NewBlackJack
                         }
                         else if (EqualAce(player1) && NotEqualAce(computer))
                         {
-                            PrintCardsP(player1);
-                            CountWinP(countWin);
+                            PrintCards(player1, CardsPlayer1);
+                            CountWinn(countWin, IndexPlayer1, Player1Win);
                             continue;
                         }
                         else if (NotEqualAce(player1) && EqualAce(computer))
                         {
-                            PrintCardsC(computer);
-                            CountWinC(countWin);
+                            PrintCards(computer, CardsComputer);
+                            CountWinn(countWin, IndexComputer, ComputerWin);
                             continue;
                         }
-                        PrintCardsC(computer);
-                        sumC = GetMoreCardsC(computer, ref index, Cards);
-                        PrintCardsP(player1);
-                        sumP = GetMoreCardsP(player1, ref index, Cards);
-                        Scoring(countWin, sumP, sumC);
+                        PrintCards(computer, CardsComputer);
+                        sumC = GetMoreCardsC(computer, ref index, Cards, CardsComputer);
+                        PrintCards(player1, CardsPlayer1);
+                        sumP = GetMoreCardsP(player1, ref index, Cards, CardsPlayer1);
+                        Scoring(countWin, sumP, sumC, IndexPlayer, WhoWin);
                         break;
                 }
                 Console.ReadLine();
